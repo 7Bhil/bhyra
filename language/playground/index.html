@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bhilal Playground</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --text-color: #c9d1d9;
+            --accent-color: #58a6ff;
+            --border-color: #30363d;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        header {
+            padding: 1rem 2rem;
+            background-color: #161b22;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        .editor-section, .output-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+        }
+        .editor-section {
+            border-right: 1px solid var(--border-color);
+        }
+        textarea {
+            flex: 1;
+            background-color: #010409;
+            color: #d2a8ff;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1rem;
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+        }
+        #output {
+            flex: 1;
+            background-color: #010409;
+            color: #7ee787;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1rem;
+            font-family: 'Courier New', Courier, monospace;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        button {
+            background-color: #238636;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: #2ea043;
+        }
+        h2 {
+            margin-top: 0;
+            color: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>💎 Bhilal Language</h1>
+        <button id="runBtn">Exécuter ▶</button>
+    </header>
+    <div class="container">
+        <div class="editor-section">
+            <h2>Éditeur</h2>
+            <textarea id="editor" spellcheck="false"># Bienvenue sur le Playground Bhilal !
+
+fonction saluer(nom) {
+    montre("Bonjour", nom, "depuis le navigateur !")
+}
+
+saluer("Bhilal")
+
+soit nombres = [10, 25, 5, 42]
+montre("Max :", max(nombres))</textarea>
+        </div>
+        <div class="output-section">
+            <h2>Console</h2>
+            <div id="output"></div>
+        </div>
+    </div>
+
+    <!-- We will bundle or copy the logic here -->
+    <script src="./lexer.js"></script>
+    <script src="./parser.js"></script>
+    <script src="./evaluator.js"></script>
+    <script>
+        // Mocking requirements for browser
+        const module = {};
+        function require(name) { return null; }
+    </script>
+    <script>
+        document.getElementById('runBtn').addEventListener('click', () => {
+            const code = document.getElementById('editor').value;
+            const outputDiv = document.getElementById('output');
+            outputDiv.textContent = "";
+
+            // Override console.log
+            const oldLog = console.log;
+            console.log = (...args) => {
+                outputDiv.textContent += args.join(' ') + '\n';
+                oldLog(...args);
+            };
+
+            try {
+                const lexer = new Lexer(code);
+                const tokens = lexer.tokenize();
+                const parser = new Parser(tokens);
+                const ast = parser.parse();
+                const evaluator = new Evaluator();
+                evaluator.evaluate(ast);
+            } catch (error) {
+                outputDiv.textContent += "Erreur: " + error.message + '\n';
+            }
+
+            console.log = oldLog;
+        });
+    </script>
+</body>
+</html>

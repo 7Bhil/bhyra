@@ -1,0 +1,30 @@
+#!/usr/bin/env node
+
+/**
+ * Bhilal CLI Wrapper
+ * Point d'entrée principal pour l'interpréteur Bhilal
+ */
+
+const path = require('path');
+const fs = require('fs');
+
+// Vérifier si l'installation a été faite
+const installMarker = path.join(__dirname, '..', '.bhilal-installed');
+const installScript = path.join(__dirname, '..', 'scripts', 'install.js');
+
+if (!fs.existsSync(installMarker) && fs.existsSync(installScript)) {
+  console.log('🚀 Première exécution de Bhilal...');
+  console.log('📦 Installation automatique des dépendances...\n');
+  
+  const { execSync } = require('child_process');
+  try {
+    execSync(`node "${installScript}"`, { stdio: 'inherit' });
+  } catch (e) {
+    console.error('\n❌ Erreur lors de l\'installation:', e.message);
+    process.exit(1);
+  }
+}
+
+// Lancer l'interpréteur Bhilal
+const bhilalPath = path.join(__dirname, '..', 'bhilal.js');
+require(bhilalPath);

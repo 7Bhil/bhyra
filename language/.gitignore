@@ -1,0 +1,5 @@
+node_modules/
+.bhilal-installed
+tools/*
+!tools/*.go
+*.log

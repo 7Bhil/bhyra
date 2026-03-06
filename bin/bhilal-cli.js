@@ -5,15 +5,6 @@ const { spawn } = require('child_process');
 const fs = require('fs');
 
 const args = process.argv.slice(2);
-console.log("DEBUG ARGS:", args);
-
-// Fonction pour trouver le chemin correct (support dev local vs npm install)
-function findPath(relativePath) {
-    let p = path.join(__dirname, relativePath);
-    if (fs.existsSync(p)) return p;
-    // Fallback: peut-être installé différemment ou structure modifiée
-    return p;
-}
 
 // Commande: bhilal bhyra ...
 if (args[0] === 'bhyra') {

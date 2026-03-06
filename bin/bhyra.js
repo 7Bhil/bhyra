@@ -26,7 +26,8 @@ if (args[0] === 'init') {
         process.exit(1);
     }
 
-    const projectPath = path.join(process.cwd(), projectName);
+    const projectPath = path.resolve(process.cwd(), projectName);
+    const appName = path.basename(projectPath);
     
     if (fs.existsSync(projectPath)) {
         console.error(`\x1b[31m[Bhyra CLI]\x1b[0m Erreur: Le dossier '${projectName}' existe déjà.`);
@@ -34,24 +35,24 @@ if (args[0] === 'init') {
     }
 
     // Création de l'architecture
-    console.log(`\x1b[36m[Bhyra CLI]\x1b[0m Création du projet \x1b[1m${projectName}\x1b[0m...`);
-    fs.mkdirSync(projectPath);
+    console.log(`\x1b[36m[Bhyra CLI]\x1b[0m Création du projet \x1b[1m${appName}\x1b[0m...`);
+    fs.mkdirSync(projectPath, { recursive: true });
     fs.mkdirSync(path.join(projectPath, 'backend'));
     fs.mkdirSync(path.join(projectPath, 'frontend'));
 
     // --- Backend: server.bh ---
-    const serverCode = `# Serveur Bhyra pour ${projectName}
+    const serverCode = `# Serveur Bhyra pour ${appName}
 
 soit srv = creer_serveur()
 
 # Route principale: Sert la page d'accueil
 srv.route("GET", "/", fonction(req, res) {
-    res.rendre("../frontend/index.html")
+    res.rendre("${path.join(projectPath, 'frontend', 'index.html')}")
 })
 
 # Route CSS
 srv.route("GET", "/style.css", fonction(req, res) {
-    res.rendre("../frontend/style.css")
+    res.rendre("${path.join(projectPath, 'frontend', 'style.css')}")
 })
 
 # Route Runtime Bhyra (Nécessaire pour le frontend)
@@ -74,13 +75,13 @@ srv.ecouter(3000)
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${projectName} - Bhyra App</title>
+    <title>${appName} - Bhyra App</title>
     <link rel="stylesheet" href="/style.css">
     <script src="/bhyra.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Bienvenue sur ${projectName} 🚀</h1>
+        <h1>Bienvenue sur ${appName} 🚀</h1>
         <p>Propulsé par <span class="highlight">Bhyra Framework</span></p>
         
         <div class="card">
@@ -169,10 +170,10 @@ footer {
 `;
     fs.writeFileSync(path.join(projectPath, 'frontend', 'style.css'), cssCode);
 
-    console.log(`\x1b[32m[Bhyra CLI]\x1b[0m ✨ Projet initialisé avec succès dans \x1b[1m${projectName}/\x1b[0m`);
+    console.log(`\x1b[32m[Bhyra CLI]\x1b[0m ✨ Projet initialisé avec succès dans \x1b[1m${projectPath}\x1b[0m`);
     console.log(`\x1b[36m[Bhyra CLI]\x1b[0m Pour démarrer :`);
-    console.log(`  cd ${projectName}`);
-    console.log(`  bhilal bhyra`); // Ou juste 'bhyra'
+    console.log(`  cd ${projectPath}`);
+    console.log(`  bhyra`);
     process.exit(0);
 }
 
@@ -202,6 +203,11 @@ if (!fs.existsSync(targetFile)) {
 }
 
 console.log(`\x1b[36m[Bhyra CLI]\x1b[0m Lancement de \x1b[1m${targetFile}\x1b[0m...`);
+
+if (!fs.existsSync(bhilalPath)) {
+    console.error(`\x1b[31m[Bhyra CLI]\x1b[0m Erreur: Interpréteur Bhilal introuvable (${bhilalPath}).`);
+    process.exit(1);
+}
 
 const proc = spawn('node', [bhilalPath, targetFile], {
     stdio: 'inherit',

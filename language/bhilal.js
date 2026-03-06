@@ -2,7 +2,10 @@ const fs = require('fs');
 const Lexer = require('./lexer');
 const Parser = require('./parser');
 const Evaluator = require('./evaluator');
-const readline = require('readline-sync');
+let readline = null;
+try {
+    readline = require('readline-sync');
+} catch (e) {}
 
 const evaluator = new Evaluator();
 
@@ -50,6 +53,11 @@ if (filePath === 'bhyra') {
 }
 
 if (!filePath) {
+    if (!readline) {
+        console.error("Erreur: le mode REPL nécessite 'readline-sync'.");
+        console.error("Exécutez un fichier .bh, ou installez la dépendance manquante.");
+        process.exit(1);
+    }
     console.log("--- Bhilal Interactive REPL ---");
     console.log("Tapez 'quitter' pour sortir.");
     while (true) {
